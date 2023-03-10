@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # Remember, our configuration assumes you build it locally first before pushing it up.
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/frontend/Dockerfile
+  nginx:
+    restart: unless-stopped
+    build:
+        context: .
+        dockerfile: ./docker/nginx/Dockerfile
+    ports:
+      -80:80
+      -443:443
+    volumes:
+      - ./docker/nginx:/etc/nginx/conf.d
+      - ./docker/nginx/certbot/conf:/etc/letsencrypt
+      - ./docker/nginx/certbot/www:/var/www/certbot
+    depends_on:
+      - backend
+      - frontend
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+  certbot:
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    volumes:
+      - ./docker/nginx/certbot/conf:/etc/letsencrypt
+      - ./docker/nginx/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+  backend:
+    context: .
+    dockerfile: ./docker/backend/Dockerfile
+    volumes:
+        - static_volume:/app/backend/django_static
+      environment:
+        - DEBUG=0
+        - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+        - DJANGO_ALLOWED_HOSTS=.aeonmoon.page
+      depends_on:
+        - db
+      expose: 
+        - 8000
+      mem_limit:
+          "300M"
+    command: "/bin/sh -c 'cd /app/backend; while !</dev/tcp/db/5432; do sleep 1; done; gunicorn --bind 0.0.0.0:8000 backend.wsgi; python3 manage.py migrate'"
+  # Below is if you want to switch from sqlite3 to a proper database like postgreSQL. You will also need to go to settings.py to change things. 
+  # db:
+  #   image: postgres:13-alpine
+  #   volumes:
+  #     - postgres_data_prod:/var/lib/postgresql/data/
+  #   expose:
+  #     - 5432
+  #   environment:
+  #     - POSTGRES_USER=username (May be better in env file)
+  #     - POSTGRES_PASSWORD=postgres (May be better in env file)
+  #     - POSTGRES_DB=postgres (db name)
