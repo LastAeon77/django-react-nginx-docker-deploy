@@ -23,7 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "<Insert Secret key here>"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# You probably want to set some sort of logic here to prevent it being True in production
+DEBUG = True
 
 ALLOWED_HOSTS = [
                 #"https://example.com",
@@ -34,12 +35,14 @@ ALLOWED_HOSTS = [
 CORS_ALLOWED_ORIGINS = [
     #"https://example.com",
     #"https://sub.example.com",
-    #"http://localhost:3000", # For testing
-    #"http://127.0.0.1:3000", # For testing
+    # "http://localhost:3000", # For testing
+    # "http://127.0.0.1:3000", # For testing
 ]
 # If you want to allow the site to make changes to the database through requests.
 CSRF_TRUSTED_ORIGINS = [
      #"https://example.com",
+    #  "http://127.0.0.1:3000", # For testing
+    #  "http://localhost:3000", # For testing
     ]
 
 

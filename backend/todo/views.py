@@ -15,10 +15,9 @@ class TodoCreate(APIView):
     # note that there's no permission settings at the moment.
     # If you want to restrict it, you will need to either start adjusting permissions or check user.
     def post(sekf,request,format="json"):
-        serializer = TodoSerializer(data=request)
+        serializer = TodoSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response("New todo has been created!", status=status.HTTP_201_CREATED)
         else:
-            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
