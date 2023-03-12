@@ -1,6 +1,23 @@
 # django-react-nginx-docker-deploy
 A boilerplate djangoapp with frontend to easily deploy with certbot and fully dockerized.
 
+Django is configured with very basic django-rest-framework setup.
+
+Next.js is configured with axios.
+
+Still in Beta! If you notice errors please tell.
+
+# Initial Setup
+
+The only thing missing here is a proper SECRET_KEY for django.
+
+In backend/settings.py, have a proper secret key. Whether through an env file or something else.
+
+I did not provide a secret key for you. I would advise putting the secret key in an .env file and use python-environ to get the key for additional security.
+```python
+SECRET_KEY=env['secret_key']
+```
+
 # Running locally for test. (No Docker)
 Note: Most of this assumes a windows environment. You might need to adjust the commands slightly if on linux to fit.
 ## Backend (Django)
