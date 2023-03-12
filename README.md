@@ -9,7 +9,7 @@ Still in Beta! If you notice errors please tell.
 
 # Initial Setup
 
-The only thing missing here is a proper SECRET_KEY for django.
+The major thing missing here is a proper SECRET_KEY for django.
 
 In backend/settings.py, have a proper secret key. Whether through an env file or something else.
 
