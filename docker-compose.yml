@@ -9,11 +9,9 @@ services:
   nginx:
     restart: unless-stopped
     build:
-        context: .
-        dockerfile: ./docker/nginx/Dockerfile
-    ports:
-      -80:80
-      -443:443
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    ports: -80:80 -443:443
     volumes:
       - ./docker/nginx:/etc/nginx/conf.d
       - ./docker/nginx/certbot/conf:/etc/letsencrypt
@@ -33,17 +31,16 @@ services:
     context: .
     dockerfile: ./docker/backend/Dockerfile
     volumes:
-        - static_volume:/app/backend/django_static
-      environment:
-        - DEBUG=0
-        - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
-        - DJANGO_ALLOWED_HOSTS=.aeonmoon.page
-      depends_on:
-        - db
-      expose: 
-        - 8000
-      mem_limit:
-          "300M"
+      - static_volume:/app/backend/django_static
+    environment:
+      - DEBUG=0
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+      - DJANGO_ALLOWED_HOSTS=.aeonmoon.page
+    depends_on:
+      - db
+    expose:
+      - 8000
+    mem_limit: "300M"
     command: "/bin/sh -c 'cd /app/backend; while !</dev/tcp/db/5432; do sleep 1; done; gunicorn --bind 0.0.0.0:8000 backend.wsgi; python3 manage.py migrate'"
   # Below is if you want to switch from sqlite3 to a proper database like postgreSQL. You will also need to go to settings.py to change things. 
   # db:
