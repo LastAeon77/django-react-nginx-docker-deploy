@@ -41,6 +41,7 @@ CORS_ALLOWED_ORIGINS = [
 # If you want to allow the site to make changes to the database through requests.
 CSRF_TRUSTED_ORIGINS = [
      #"https://example.com",
+     #"https://sub.example.com",
     #  "http://127.0.0.1:3000", # For testing
     #  "http://localhost:3000", # For testing
     ]
