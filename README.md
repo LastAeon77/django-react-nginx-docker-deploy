@@ -102,7 +102,7 @@ npm run dev
 
 YOU DON'T NEED TO UPLOAD THE WHOLE FRONTEND FOLDER
 
-We don't want to burden the server with expensive npm build process. So we will only need to upload the .next folder.
+We don't want to burden the server with expensive npm build process. So we will only need to upload the .next folder and the package.json and package-lock.json folder.
 
 If you are using classic react, the folder name may change, and you will need to adjust accordingly.
 
@@ -118,7 +118,9 @@ next build
 ```
 You should now have the .next folder in your frontend directory. Please remember that the django files are configured to be used node.js server and WILL run npm start to activate the site. If you wish to have a static HTML page for whatever reason you will need to configure it yourself.
 
-## Configuring files before uploading and to virtual private server
+## Changing/configuring files before deployment
+
+You probably want to do this locally. Assume project root directory.
 
 ### Backend
 In backend/settings.py. replace example to your domain. 
@@ -167,35 +169,14 @@ or
 depending on your own domain settings. You can have both too, but you'll need to add it in.
 ```
 
-### Script config
-Reference: https://github.com/wmnnd/nginx-certbot
-
-This script is created to create dummy certificates before starting the docker.
-
-./init-letsencrypt.sh
-
-In the file, you will see comments to configure your domain into the data.
-
-```
-domains=(example.com www.example.com) => domains=(aeonmoon.org www.aeonmoon.org)
-or
-domains=(example.com www.example.com) => domains=(malcute.aeonmoon.org www.malcute.aeonmoon.org)
-```
-Change email
-```
-email="" => email="whatever@email.com"
-```
-Staging: As mentioned in the comment, set to 1 for testing.
-```
-staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
-```
-
-
-
 ## Virtual Private server configurations
 THESE EXAMPLES ASSUME YOU WILL USE DigitalOcean SERVER. OTHER SERVERS MAY HAVE DIFFERENT NEEDS. 
 
+Make sure you have an ssh key ready to configure to your droplet: https://docs.digitalocean.com/products/droplets/how-to/add-ssh-keys/
+
 Buy a droplet (virtual private server) here. I'm using the cheap 6$ one. https://www.digitalocean.com/products/droplets
+
+Configure to allow SSH to use Putty for file upload and future interactions: https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-20-04
 
 ## SSH into droplet
 Setting up ssh key: https://docs.digitalocean.com/products/droplets/how-to/connect-with-ssh/
@@ -228,6 +209,15 @@ sudo apt install docker-ce
 ```
 sudo systemctl status docker
 ```
+
+Then install docker compose
+```
+sudo apt-get install docker-compose-plugin
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.16.2/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
+sudo mv /usr/local/bin/docker-compose /usr/bin/docker-compose
+sudo chmod +x /usr/bin/docker-compose
+
+```
 This setup forces you to use sudo everytime you use docker commands. If you want to setup docker command without sudo, the reference above details how you can do exactly that.
 
 ## Connecting domain to digitalOcean
@@ -235,18 +225,47 @@ I assume you have already connected your domain to digital ocean.
 
 If not, use this guide: https://docs.digitalocean.com/products/networking/dns/how-to/add-domains/
 
-## Changing/configuring files before deployment
-
-You probably want to do this locally. Assume project root directory.
 
 ## Uploading files to VPS/droplet
 Personally I use filezilla to accomplish the task. Make a folder to keep the project inside the droplet and upload everything inside it.
+
+### Getting the fake certificate for initial setup
+Reference: https://github.com/wmnnd/nginx-certbot
+
+First, get the file to the working directory in the VPS
+
+```
+curl -L https://raw.githubusercontent.com/wmnnd/nginx-certbot/master/init-letsencrypt.sh > init-letsencrypt.sh
+```
+
+This script is created to create dummy certificates before starting the docker. Edit the domains and email to your own with:
+
+```
+nano init-letsencrypt.sh
+```
+
+In the file, you will see comments to configure your domain into the data.
+
+```
+domains=(example.com www.example.com) => domains=(aeonmoon.org www.aeonmoon.org)
+or
+domains=(example.com www.example.com) => domains=(malcute.aeonmoon.org www.malcute.aeonmoon.org)
+```
+Change email
+```
+email="" => email="whatever@email.com"
+```
+Staging: As mentioned in the comment, set to 1 for testing.
+```
+staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
+```
+DO NOT EDIT THIS IN WINDOWS. It will break the .sh file.
 
 ## Acquiring certificate for https
 
 To be allowed to use HTTPS, you will first need to run a script to get dummy certificates
 ```
-sudo ./init-letsencrypt.sh
+sudo /bin/bash init-letsencrypt.sh
 ```
 This will create docker/nginx/certbot/conf/ and docker/nginx/certbot/www/ in docker folder.
 
